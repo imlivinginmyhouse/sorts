@@ -1,10 +1,10 @@
 import javax.swing.*;
 import java.awt.*;
 import java.util.Random;
+import java.util.logging.*;
 
-long count = 0;
-long size = 0;
-int batch = 100000;
+long count = 0; //comparisons
+int batch = 100000; //size of array
 long startTime = System.currentTimeMillis();
 long endTime = startTime;
 
@@ -22,27 +22,25 @@ public class sorts extends JPanel {
         long startTime = System.currentTimeMillis();
         switch (algorithm) {
             case "selection":
-                for (int i = 0; i < array.length - 1; i++) {
+                for (int i = 0; i < array.length; i++) {
                     int min = i;
                     for (int j = i + 1; j < array.length; j++) {
                         if (array[j] < array[min]) {
-                            min = j;
+                            min = j; //finds the smallest one
                         }
                         count++;
                     }
                     int temp = array[i];
-                    array[i] = array[min];
+                    array[i] = array[min]; //swaps
                     array[min] = temp;
                 }
                 break;
             case "insertion":
-                int[] sorted = new int[array.length];
                 for (int i = 0; i < array.length; i++) {
-                    size++;
                     int index = array[i];
                     int j = i - 1;
                     while (j >= 0 && array[j] > index) {
-                        array[j + 1] = array[j];
+                        array[j + 1] = array[j]; //re orders it in the sorted portion
                         j = j - 1;
                         count++;
                     }
@@ -55,23 +53,22 @@ public class sorts extends JPanel {
                         if (array[j] > array[j + 1]) {
                             int temp = array[j];
                             array[j] = array[j + 1];
-                            array[j + 1] = temp;
+                            array[j + 1] = temp; //swaps
                             count++;
                         }
                     }
                 }
         }
         long duration = System.currentTimeMillis() - startTime;
-        System.out.println("Algorithm: " + algorithm + ", Duration: " + duration + "ms, Steps: " + count + ", Size: " + size);
+        System.out.println("Algorithm: " + algorithm + ", Duration: " + duration + "ms, Steps: " + count + ", Size: " + batch); //console logs for testing
     }
 
     public void reset() {
         count = 0;
-        size = 0;
 
         Random rand = new Random();
 
-        array = new int[batch];
+        array = new int[batch]; //creates new array with new size (from trying to find the best batch size for accurate analysis
 
         for (int i = 0; i < array.length; i++) {
             array[i] = rand.nextInt(batch);
@@ -84,7 +81,7 @@ public void main(String[] args) {
     sorts sorter = new sorts(batch);
 
     JFrame frame = new JFrame();
-    JComboBox < String > algorithms = new JComboBox < > (algs);
+    JComboBox <String> algorithms = new JComboBox <> (algs);
     JButton startB = new JButton("Start Sort");
     JButton batchB = new JButton("Find Best Size");
     JPanel controls = new JPanel();
@@ -106,16 +103,15 @@ public void main(String[] args) {
 
     startB.addActionListener(e -> {
         sorter.reset();
-        String selected = (String) algorithms.getSelectedItem();new Thread(() -> {
+        String selected = (String) algorithms.getSelectedItem();
+        new Thread(() -> {
             try {
                 long startTime = System.currentTimeMillis();
                 sorter.sort(selected);
                 long duration = System.currentTimeMillis() - startTime;
                 SwingUtilities.invokeLater(() -> {
                     report.setText(
-                            "Alg: " + selected +
-                                    " | Moves: " + count +
-                                    " | Time: " + duration + ("ms")
+                            "Alg: " + selected + " | Moves: " + count + " | Time: " + duration + ("ms")
                     );
                 });
             } catch (InterruptedException ee) {
@@ -129,7 +125,7 @@ public void main(String[] args) {
                 startTime = System.currentTimeMillis();
                 batch = 10000 * i;
 
-                sorts benchmark = new sorts(batch);
+                sorts benchmark = new sorts(batch); //creates new sorts class to find optimal batch size for testing (when insertion sort > 1 second)
 
                 benchmark.reset();
                 benchmark.sort("insertion");
